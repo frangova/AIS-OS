@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Crypto Opportunity Radar</title>
+  <meta name="description" content="Live crypto opportunity ranking based on relative strength, demand, supply quality and protocol value accrual." />
+  <style>
+    :root{--bg:#071018;--card:#0d1722;--card2:#111e2b;--line:#223244;--text:#eef5fb;--muted:#93a4b8;--good:#4ade80;--warn:#fbbf24;--bad:#fb7185;--accent:#5eead4;--accent2:#60a5fa}
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(180deg,#061019,#09131e 45%,#071018);color:var(--text)}
+    .wrap{max-width:1440px;margin:auto;padding:28px}.top{display:flex;gap:18px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}.brand h1{font-size:30px;margin:0 0 8px;letter-spacing:-.04em}.brand p{margin:0;color:var(--muted);max-width:850px;line-height:1.5}.status{display:flex;gap:8px;align-items:center;border:1px solid var(--line);background:#09131d;padding:9px 12px;border-radius:999px;color:var(--muted);font-size:13px}.dot{width:8px;height:8px;border-radius:50%;background:var(--warn)}
+    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:22px 0}.metric{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);padding:16px;border-radius:16px}.metric b{display:block;font-size:22px;margin-top:7px}.metric span{font-size:12px;color:var(--muted)}
+    .panel{background:rgba(13,23,34,.9);border:1px solid var(--line);border-radius:18px;padding:16px;margin:14px 0;box-shadow:0 20px 60px rgba(0,0,0,.18)}
+    .controls{display:grid;grid-template-columns:2fr repeat(4,1fr) auto;gap:10px;align-items:end}.field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 6px}.field input,.field select{width:100%;background:#07111b;border:1px solid var(--line);color:var(--text);padding:10px 11px;border-radius:10px;outline:none}.btn{border:0;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04111b;font-weight:800;padding:11px 15px;border-radius:10px;cursor:pointer}.btn:disabled{opacity:.5;cursor:not-allowed}
+    .section-title{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px}.section-title h2{font-size:17px;margin:0}.small{font-size:12px;color:var(--muted)}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}table{width:100%;border-collapse:collapse;min-width:1180px;background:#09131d}th,td{padding:11px 10px;border-bottom:1px solid #182635;text-align:right;font-size:13px}th{position:sticky;top:0;background:#0e1b27;color:#9db0c5;font-size:11px;text-transform:uppercase;letter-spacing:.05em;z-index:1}th:first-child,td:first-child{text-align:left}.asset{display:flex;gap:9px;align-items:center}.asset img{width:28px;height:28px;border-radius:50%}.asset .name{font-weight:750}.asset .sym{color:var(--muted);font-size:11px;text-transform:uppercase}.score{font-weight:850;font-variant-numeric:tabular-nums}.score.hot{color:var(--good)}.score.mid{color:var(--warn)}.pill{display:inline-block;padding:4px 7px;border-radius:999px;border:1px solid var(--line);font-size:11px;color:#c8d5e3;background:#0a1520}.up{color:var(--good)}.down{color:var(--bad)}.neutral{color:var(--muted)}
+    .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.example{padding:15px;border-radius:14px;border:1px solid var(--line);background:#09131d}.example h3{margin:0 0 7px;font-size:16px}.example p{margin:0;color:var(--muted);font-size:13px;line-height:1.45}.example ul{margin:10px 0 0 18px;padding:0;color:#c8d5e3;font-size:12px;line-height:1.5}
+    .method{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.method div{background:#09131d;border:1px solid var(--line);padding:12px;border-radius:12px}.method b{display:block;font-size:14px}.method span{color:var(--muted);font-size:11px}.foot{color:var(--muted);font-size:11px;line-height:1.5;margin-top:10px}.error{display:none;color:#fecdd3;background:#3b1119;border:1px solid #6f1d2b;padding:10px 12px;border-radius:10px;margin:10px 0;font-size:12px}.warnbox{color:#fde68a;background:#352b0d;border:1px solid #66521b;padding:10px 12px;border-radius:10px;margin:10px 0;font-size:12px}
+    @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.controls{grid-template-columns:1fr 1fr}.cards{grid-template-columns:1fr}.method{grid-template-columns:1fr 1fr}.wrap{padding:16px}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><h1>Crypto Opportunity Radar</h1><p>Ranks liquid crypto assets by the pattern behind recent market leaders: <strong>relative strength + persistent demand + healthy float + real economic/catalyst confirmation</strong>. It is a research screener, not an automatic buy signal.</p></div>
+    <div class="status"><span class="dot" id="dot"></span><span id="statusText">Loading live data…</span></div>
+  </div>
+
+  <div class="grid">
+    <div class="metric"><span>Universe scanned</span><b id="universe">—</b></div>
+    <div class="metric"><span>BTC 7d return</span><b id="btc7">—</b></div>
+    <div class="metric"><span>Median 7d return</span><b id="median7">—</b></div>
+    <div class="metric"><span>Last refresh</span><b id="refresh" style="font-size:16px">—</b></div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title"><h2>Filters</h2><span class="small">Defaults remove illiquid microcaps and obvious supply-overhang traps.</span></div>
+    <div class="controls">
+      <div class="field"><label>Search</label><input id="search" placeholder="HYPE, ZEC, Venice…" /></div>
+      <div class="field"><label>Min market cap</label><select id="minMcap"><option value="25000000">$25M</option><option selected value="50000000">$50M</option><option value="100000000">$100M</option><option value="500000000">$500M</option></select></div>
+      <div class="field"><label>Min 24h volume</label><select id="minVol"><option value="1000000">$1M</option><option selected value="5000000">$5M</option><option value="10000000">$10M</option><option value="50000000">$50M</option></select></div>
+      <div class="field"><label>Min score</label><select id="minScore"><option value="0">Any</option><option value="55">55+</option><option selected value="65">65+</option><option value="75">75+</option></select></div>
+      <div class="field"><label>Sort</label><select id="sort"><option value="score">Opportunity score</option><option value="rs7">7d vs BTC</option><option value="rs30">30d vs BTC</option><option value="turnover">Volume / market cap</option><option value="revenueYield">Revenue yield</option></select></div>
+      <button class="btn" id="refreshBtn">Refresh</button>
+    </div>
+    <div class="error" id="error"></div>
+    <div class="warnbox">Catalysts like ETF flows, token unlocks, shielded-supply growth and derivatives crowding require specialist feeds. This free live build scores the measurable cross-market layer and adds DefiLlama protocol revenue / holder-revenue when it can match a token. Missing fundamental data is shown explicitly rather than invented.</div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title"><h2>Ranked opportunities</h2><span class="small" id="shown">—</span></div>
+    <div class="table-wrap"><table><thead><tr>
+      <th>Asset</th><th>Score</th><th>Confidence</th><th>24h</th><th>7d</th><th>30d</th><th>7d vs BTC</th><th>30d vs BTC</th><th>Vol/MCap</th><th>Float</th><th>30d revenue</th><th>Ann. rev/MCap</th><th>Signal</th>
+    </tr></thead><tbody id="tbody"></tbody></table></div>
+    <div class="foot">Score weights: 30% relative strength, 15% trend persistence/acceleration, 15% demand/liquidity, 15% supply quality, 20% economic confirmation when available, 5% trend location. Pump and low-float penalties are applied after the weighted score. “Confidence” reflects how much of the score is supported by live data rather than a neutral fallback.</div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title"><h2>Why the reference winners worked</h2><span class="small">These are the patterns the model is designed to detect—not claims that every future winner must look identical.</span></div>
+    <div class="cards">
+      <div class="example"><h3>HYPE · value accrual</h3><p>Strong price leadership was backed by a business producing real fees and programmatic token buybacks, plus rising ecosystem usage.</p><ul><li>Relative strength vs broad crypto</li><li>Protocol revenue and holder value accrual</li><li>Growing OI / platform activity</li><li>Structural buyback demand</li></ul></div>
+      <div class="example"><h3>ZEC · catalyst + usage</h3><p>The rally combined a concrete institutional-access catalyst with renewed privacy demand, rising network activity, heavy volume and derivatives participation.</p><ul><li>ETF / ETP access and inflows</li><li>Shielded-supply / privacy usage</li><li>Breakout relative strength</li><li>OI and volume confirmation</li></ul></div>
+      <div class="example"><h3>VVV · improving tokenomics</h3><p>Venice linked product revenue to buy-and-burn mechanics while reducing emissions, creating a cleaner demand/supply loop around actual AI usage.</p><ul><li>Revenue-linked burns</li><li>Falling emissions</li><li>Product-linked token utility</li><li>Momentum confirmed by structural scarcity</li></ul></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title"><h2>Scoring architecture</h2></div>
+    <div class="method">
+      <div><b>30% Leadership</b><span>7d + 30d returns relative to BTC, ranked cross-sectionally.</span></div>
+      <div><b>15% Persistence</b><span>Positive 24h/7d/30d structure plus recent acceleration.</span></div>
+      <div><b>15% Demand</b><span>24h volume relative to market cap and absolute liquidity.</span></div>
+      <div><b>15% Supply</b><span>Circulating value vs FDV; low-float tokens are penalized.</span></div>
+      <div><b>25% Confirmation</b><span>Protocol economics when available + trend location; specialist feeds improve this layer.</span></div>
+    </div>
+  </div>
+</div>
+<script>
+const CG='https://api.coingecko.com/api/v3';
+const LLAMA='https://api.llama.fi';
+const stableSymbols=new Set(['usdt','usdc','dai','usde','usds','fdusd','usdf','pyusd','usdd','tusd','gusd','frax','lusd','crvusd','eurc','rlusd']);
+const wrappedHints=['wrapped','staked','bridged','wormhole','binance bridged'];
+let rows=[];
+const $=id=>document.getElementById(id);
+const fmtPct=v=>Number.isFinite(v)?`${v>=0?'+':''}${v.toFixed(1)}%`:'—';
+const fmtMoney=v=>!Number.isFinite(v)?'—':v>=1e9?`$${(v/1e9).toFixed(2)}B`:v>=1e6?`$${(v/1e6).toFixed(1)}M`:v>=1e3?`$${(v/1e3).toFixed(1)}K`:`$${v.toFixed(0)}`;
+const clamp=(x,a=0,b=100)=>Math.max(a,Math.min(b,x));
+function percentile(arr,val){const a=arr.filter(Number.isFinite).sort((x,y)=>x-y); if(!a.length||!Number.isFinite(val)) return 50; let lo=0; while(lo<a.length&&a[lo]<=val) lo++; return 100*lo/a.length;}
+function median(a){a=a.filter(Number.isFinite).sort((x,y)=>x-y); if(!a.length)return NaN; const m=Math.floor(a.length/2);return a.length%2?a[m]:(a[m-1]+a[m])/2}
+function cls(v){return !Number.isFinite(v)?'neutral':v>0?'up':v<0?'down':'neutral'}
+function normalized(s){return (s||'').toLowerCase().replace(/[^a-z0-9]/g,'')}
+function isExcluded(c){const n=(c.name||'').toLowerCase(),s=(c.symbol||'').toLowerCase();return stableSymbols.has(s)||wrappedHints.some(h=>n.includes(h));}
+async function fetchJson(url){const r=await fetch(url,{headers:{accept:'application/json'}});if(!r.ok)throw new Error(`${r.status} ${r.statusText}`);return r.json()}
+async function fetchMarkets(){let all=[];for(let page=1;page<=2;page++){const u=`${CG}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=${page}&sparkline=false&price_change_percentage=1h,24h,7d,30d`; const part=await fetchJson(u);all=all.concat(part);if(part.length<250)break;}return all.filter(c=>!isExcluded(c));}
+async function fetchLlama(dataType){try{return await fetchJson(`${LLAMA}/overview/fees?excludeTotalDataChart=true&excludeTotalDataChartBreakdown=true&dataType=${dataType}`)}catch(e){return null}}
+function buildFundamentalMap(rev,holders){const map=new Map(); const ingest=(src,key)=>{for(const p of (src?.protocols||[])){const rec={...(map.get(p.gecko_id)||map.get(normalized(p.name))||{})};rec.name=p.name;rec.gecko_id=p.gecko_id;rec.symbol=p.symbol;rec[key+'24']=p.total24h;rec[key+'30']=p.total30d;rec[key+'chg']=p.change_1m ?? p.change_30dover30d; const keys=[p.gecko_id,normalized(p.name),normalized(p.displayName),normalized(p.symbol)].filter(Boolean);for(const k of keys)map.set(k,rec)}};ingest(rev,'rev');ingest(holders,'holder');return map}
+function getFundamental(c,map){return map.get(c.id)||map.get(normalized(c.name))||map.get(normalized(c.symbol))||null}
+function scoreMarket(coins,fmap){const btc=coins.find(c=>c.id==='bitcoin')||{};const b7=btc.price_change_percentage_7d_in_currency||0,b30=btc.price_change_percentage_30d_in_currency||0;
+  const eligible=coins.filter(c=>Number.isFinite(c.market_cap)&&c.market_cap>0);
+  const rs7s=eligible.map(c=>(c.price_change_percentage_7d_in_currency||0)-b7),rs30s=eligible.map(c=>(c.price_change_percentage_30d_in_currency||0)-b30),turns=eligible.map(c=>c.total_volume/c.market_cap).filter(Number.isFinite);
+  const enriched=eligible.map(c=>{const p24=c.price_change_percentage_24h_in_currency ?? c.price_change_percentage_24h ?? 0,p7=c.price_change_percentage_7d_in_currency??0,p30=c.price_change_percentage_30d_in_currency??0;const rs7=p7-b7,rs30=p30-b30,turn=c.total_volume/c.market_cap; const f=getFundamental(c,fmap); const revenue30=Number(f?.rev30)||0, holder30=Number(f?.holder30)||0; const revYield=revenue30>0&&c.market_cap>0?(revenue30*12/c.market_cap)*100:NaN; const float=(c.fully_diluted_valuation&&c.market_cap)?clamp(c.market_cap/c.fully_diluted_valuation*100,0,100):100;
+    return {...c,p24,p7,p30,rs7,rs30,turn,f,revenue30,holder30,revYield,float};});
+  const revYields=enriched.map(x=>x.revYield).filter(Number.isFinite);
+  for(const x of enriched){
+    const leadership=.55*percentile(rs7s,x.rs7)+.45*percentile(rs30s,x.rs30);
+    const persistence=clamp(50+(x.p24>0?12:-8)+(x.p7>0?14:-12)+(x.p30>0?14:-12)+clamp((x.p7-(x.p30*7/30))*1.2,-18,18));
+    const demand=.7*percentile(turns,x.turn)+.3*clamp(Math.log10(Math.max(x.total_volume,1)/1e6)*24+28);
+    const supply=clamp((x.float-25)*1.35+25);
+    let econ=50, econKnown=false;
+    if(Number.isFinite(x.revYield)){econKnown=true;econ=.7*percentile(revYields,x.revYield)+.3*clamp(50+(Number(x.f?.revchg)||0)); if(x.holder30>0&&x.revenue30>0)econ=clamp(econ+Math.min(15,(x.holder30/x.revenue30)*15));}
+    const athLoc=Number.isFinite(x.ath_change_percentage)?clamp(100+x.ath_change_percentage):50;
+    let score=.30*leadership+.15*persistence+.15*demand+.15*supply+.20*econ+.05*athLoc;
+    let penalty=0; if(x.float<25)penalty+=12;if(x.p24>30&&x.p7<35)penalty+=8;if(x.turn<.015)penalty+=5;if(x.market_cap<25e6)penalty+=8;score=clamp(score-penalty);
+    const confidence=Math.round(clamp(78+(econKnown?17:0)+(Number.isFinite(x.fully_diluted_valuation)?5:0)-((x.market_cap<100e6)?5:0)));
+    const tags=[];if(x.rs7>8&&x.rs30>10)tags.push('Leader');if(x.turn>.15)tags.push('High demand');if(x.float>=75)tags.push('Clean float');if(econKnown&&x.revYield>5)tags.push('Cash flow');if(x.holder30>0)tags.push('Holder accrual');if(x.p24>25)tags.push('Extended');if(x.float<35)tags.push('Low float');
+    Object.assign(x,{leadership,persistence,demand,supply,econ,athLoc,score,confidence,tags});
+  }
+  return {enriched,b7,b30};
+}
+function render(){const q=$('search').value.trim().toLowerCase(),minM=+$('minMcap').value,minV=+$('minVol').value,minS=+$('minScore').value,sort=$('sort').value;let a=rows.filter(x=>x.market_cap>=minM&&x.total_volume>=minV&&x.score>=minS&&(!q||x.name.toLowerCase().includes(q)||x.symbol.toLowerCase().includes(q)));a.sort((x,y)=>(y[sort]??-Infinity)-(x[sort]??-Infinity));$('shown').textContent=`${a.length} assets shown`;$('tbody').innerHTML=a.slice(0,100).map(x=>`<tr><td><div class="asset"><img src="${x.image}" alt=""><div><div class="name">${x.name}</div><div class="sym">${x.symbol}</div></div></div></td><td class="score ${x.score>=75?'hot':x.score>=65?'mid':''}">${x.score.toFixed(1)}</td><td>${x.confidence}%</td><td class="${cls(x.p24)}">${fmtPct(x.p24)}</td><td class="${cls(x.p7)}">${fmtPct(x.p7)}</td><td class="${cls(x.p30)}">${fmtPct(x.p30)}</td><td class="${cls(x.rs7)}">${fmtPct(x.rs7)}</td><td class="${cls(x.rs30)}">${fmtPct(x.rs30)}</td><td>${fmtPct(x.turn*100)}</td><td>${x.float.toFixed(0)}%</td><td>${x.revenue30?fmtMoney(x.revenue30):'—'}</td><td>${Number.isFinite(x.revYield)?x.revYield.toFixed(1)+'%':'—'}</td><td style="text-align:left">${(x.tags.length?x.tags:['Quant only']).slice(0,2).map(t=>`<span class="pill">${t}</span>`).join(' ')}</td></tr>`).join('')||`<tr><td colspan="13" style="text-align:center;color:var(--muted);padding:26px">No assets match these filters.</td></tr>`}
+async function load(){const btn=$('refreshBtn');btn.disabled=true;$('statusText').textContent='Loading live data…';$('dot').style.background='var(--warn)';$('error').style.display='none';try{const [coins,rev,holders]=await Promise.all([fetchMarkets(),fetchLlama('dailyRevenue'),fetchLlama('dailyHoldersRevenue')]);const fmap=buildFundamentalMap(rev,holders);const s=scoreMarket(coins,fmap);rows=s.enriched;$('universe').textContent=rows.length;$('btc7').textContent=fmtPct(s.b7);$('btc7').className=cls(s.b7);$('median7').textContent=fmtPct(median(rows.map(x=>x.p7)));$('refresh').textContent=new Date().toLocaleString();$('statusText').textContent='Live · CoinGecko + DefiLlama';$('dot').style.background='var(--good)';render()}catch(e){$('error').textContent=`Live fetch failed: ${e.message}. CoinGecko's free API can rate-limit browser requests; refresh in a minute or use the production server-side build described in the README.`;$('error').style.display='block';$('statusText').textContent='Data unavailable';$('dot').style.background='var(--bad)'}finally{btn.disabled=false}}
+['search','minMcap','minVol','minScore','sort'].forEach(id=>$(id).addEventListener(id==='search'?'input':'change',render));$('refreshBtn').addEventListener('click',load);load();
+</script>
+</body>
+</html>
